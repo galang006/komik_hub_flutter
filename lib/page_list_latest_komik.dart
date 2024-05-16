@@ -1,5 +1,6 @@
 import 'package:pa_prak_mobile/latest_komik_model.dart';
 import 'package:pa_prak_mobile/load_data_source.dart';
+import 'package:pa_prak_mobile/page_detail_komik.dart';
 import 'package:flutter/material.dart';
 
 class PageListLatestKomik extends StatefulWidget {
@@ -14,7 +15,7 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Meal Categories",
+          "Latest Komik",
           style: TextStyle(
             color: Colors.white,
           ),
@@ -22,11 +23,11 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
         backgroundColor: Color(0xFF994422),
         centerTitle: true,
       ),
-      body: _buildListCategoryBody(),
+      body: _buildListLatestKomik(),
     );
   }
 
-  Widget _buildListCategoryBody() {
+  Widget _buildListLatestKomik() {
     return Container(
       child: FutureBuilder(
         future: ApiDataSource.instance.loadLatestKomik(),
@@ -58,22 +59,22 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
 
   Widget _buildSuccessSection(LatestKomikModel data) {
     return ListView.builder(
-      itemCount: data.data!.length ?? 0,
+      itemCount: data.data!.length,
       itemBuilder: (BuildContext context, int index) {
-        return _buildItemCategory(data.data![index]);
+        return _buildItemLatestKomik(data.data![index]);
       },
     );
   }
 
-  Widget _buildItemCategory(Data latestKomik) {
+  Widget _buildItemLatestKomik(Data latestKomik) {
     return InkWell(
       onTap: () {
-        // Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //         builder: (context) => PageListMeals(
-        //           category: category.strCategory!,
-        //         )));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PageDetailKomik(
+                    idKomik: latestKomik.id!,
+                )));
       },
       child: Card(
           color: Color(0xFFF7EFF1),
@@ -93,11 +94,11 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(latestKomik.title! ?? 'No Title', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                    Text(latestKomik.title!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10), // Tambahkan jarak horizontal di sini
                       child: Text(
-                        latestKomik.summary!  ?? 'No Summary',
+                        latestKomik.summary!,
                         textAlign: TextAlign.justify,
                       ),
                     ),
