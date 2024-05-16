@@ -9,8 +9,9 @@ class BaseNetwork {
     debugPrint("BaseNetwork - fullUrl : $fullUrl");
 
     final headers = {
-      // 'X-RapidAPI-Key': '54783c9b68mshcba9b7aef779a18p17a6a7jsn115a58dc1f34',
-      'X-RapidAPI-Key': '84cb9e3cc0mshbb407e0ce7ac26cp10601ejsn7427c13b53a8',
+      //'X-RapidAPI-Key': '54783c9b68mshcba9b7aef779a18p17a6a7jsn115a58dc1f34',
+      //'X-RapidAPI-Key': '84cb9e3cc0mshbb407e0ce7ac26cp10601ejsn7427c13b53a8',
+      'X-RapidAPI-Key': 'b53bb91f8amsh6407729f528c092p1e9773jsne59c6c7be581',
       'X-RapidAPI-Host': 'mangaverse-api.p.rapidapi.com'
     };
 

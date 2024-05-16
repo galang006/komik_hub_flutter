@@ -10,6 +10,9 @@ class PageListLatestKomik extends StatefulWidget {
 }
 
 class _PageListLatestKomikState extends State<PageListLatestKomik> {
+  int currentPage = 1;
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,14 +26,46 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
         backgroundColor: Color(0xFF994422),
         centerTitle: true,
       ),
-      body: _buildListLatestKomik(),
+      body: _isLoading ? _buildLoadingSection() : _buildListLatestKomik(),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (currentPage >
+              1) // Tampilkan tombol "Back" jika nomor halaman lebih dari 1
+            FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                  currentPage--; // Kurangi nomor halaman
+                });
+                _loadPageKomik(currentPage);
+              },
+              child: Icon(Icons.arrow_back),
+              backgroundColor: Color(0xFF994422),
+            ),
+          SizedBox(
+              width:
+                  20), // Berikan sedikit jarak antara tombol "Back" dan "Next"
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                currentPage++;
+                _isLoading = true;
+              });
+              _loadPageKomik(currentPage);
+            },
+            child: Icon(Icons.arrow_forward),
+            backgroundColor: Color(0xFF994422),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildListLatestKomik() {
     return Container(
       child: FutureBuilder(
-        future: ApiDataSource.instance.loadLatestKomik(),
+        future: ApiDataSource.instance.loadLatestKomik(currentPage.toString()),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if (snapshot.hasError) {
             // Jika data ada error maka akan ditampilkan hasil error
@@ -38,7 +73,8 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
           }
           if (snapshot.hasData) {
             // Jika data ada dan berhasil maka akan ditampilkan hasil datanya
-            LatestKomikModel latestKomikModel = LatestKomikModel.fromJson(snapshot.data);
+            LatestKomikModel latestKomikModel =
+                LatestKomikModel.fromJson(snapshot.data);
             return _buildSuccessSection(latestKomikModel);
           }
           return _buildLoadingSection();
@@ -73,8 +109,8 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
             context,
             MaterialPageRoute(
                 builder: (context) => PageDetailKomik(
-                    idKomik: latestKomik.id!,
-                )));
+                      idKomik: latestKomik.id!,
+                    )));
       },
       child: Card(
           color: Color(0xFFF7EFF1),
@@ -94,9 +130,15 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(latestKomik.title!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                    Text(
+                      latestKomik.title!,
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10), // Tambahkan jarak horizontal di sini
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 10), // Tambahkan jarak horizontal di sini
                       child: Text(
                         latestKomik.summary!,
                         textAlign: TextAlign.justify,
@@ -106,9 +148,18 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
                 ),
               ],
             ),
-          )
-
-      ),
+          )),
     );
+  }
+  void _loadPageKomik(int page) async {
+    setState(() {
+      _isLoading = true; // Set loading state to true
+    });
+
+    await ApiDataSource.instance.loadLatestKomik(currentPage.toString());
+
+    setState(() {
+      _isLoading = false; // Set loading state to false after data is loaded
+    });
   }
 }
