@@ -1,18 +1,17 @@
-import 'package:pa_prak_mobile/latest_komik_model.dart';
 import 'package:pa_prak_mobile/load_data_source.dart';
 import 'package:pa_prak_mobile/page_detail_komik.dart';
+import 'package:pa_prak_mobile/search_result_model.dart';
 import 'package:flutter/material.dart';
-import 'package:pa_prak_mobile/page_search_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PageListLatestKomik extends StatefulWidget {
-  const PageListLatestKomik({Key? key}) : super(key: key);
+class PageListSearchResult extends StatefulWidget {
+  final String text;
+  const PageListSearchResult({Key? key, required this.text}) : super(key: key);
   @override
-  State<PageListLatestKomik> createState() => _PageListLatestKomikState();
+  State<PageListSearchResult> createState() => _PageListSearchResultState();
 }
 
-class _PageListLatestKomikState extends State<PageListLatestKomik> {
-  int currentPage = 1;
+class _PageListSearchResultState extends State<PageListSearchResult> {
   bool _isLoading = false;
   bool _isDarkTheme = false;
   //
@@ -43,25 +42,7 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: TextField(
-          style: TextStyle(
-            backgroundColor: appBarColor,
-            color: titleColor,
-          ),
-          decoration: InputDecoration(
-            hintText: 'Search...',
-            hintStyle: TextStyle(color: titleColor)
-          ),
-          onSubmitted: (value) {
-            // Navigasi ke halaman hasil pencarian
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PageListSearchResult(text: value),
-              ),
-            );
-          },
-        ),
+        title: Text(widget.text, style: TextStyle(color: titleColor),),
         backgroundColor: appBarColor,
         centerTitle: true,
         actions: [
@@ -79,45 +60,15 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
           ),
         ],
       ),
-      //body: Text("Test"),
-      body: _isLoading ? _buildLoadingSection() : _buildListLatestKomik(),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (currentPage >
-              1) // Tampilkan tombol "Back" jika nomor halaman lebih dari 1
-            FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  currentPage--; // Kurangi nomor halaman
-                });
-                _loadPageKomik(currentPage);
-              },
-              child: Icon(Icons.arrow_back),
-              backgroundColor: Color(0xFF994422),
-            ),
-          SizedBox(
-              width:
-                  20), // Berikan sedikit jarak antara tombol "Back" dan "Next"
-          FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                currentPage++;
-              });
-              _loadPageKomik(currentPage);
-            },
-            child: Icon(Icons.arrow_forward),
-            backgroundColor: Color(0xFF994422),
-          ),
-        ],
-      ),
+      //body: Text("TEst"),
+      body: _isLoading ? _buildLoadingSection() : _buildListSearchResult(),
     );
   }
 
-  Widget _buildListLatestKomik() {
+  Widget _buildListSearchResult() {
     return Container(
       child: FutureBuilder(
-        future: ApiDataSource.instance.loadLatestKomik(currentPage.toString()),
+        future: ApiDataSource.instance.loadSearchResult(widget.text),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if (snapshot.hasError) {
             // Jika data ada error maka akan ditampilkan hasil error
@@ -125,9 +76,16 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
           }
           if (snapshot.hasData) {
             // Jika data ada dan berhasil maka akan ditampilkan hasil datanya
-            LatestKomikModel latestKomikModel =
-                LatestKomikModel.fromJson(snapshot.data);
-            return _buildSuccessSection(latestKomikModel);
+            SearchResultListModel searchResultListModel =
+            SearchResultListModel.fromJson(snapshot.data);
+            if (searchResultListModel.data!.length == 0){
+              return Center(
+                child: Text("Hasil tidak ditemukan"),
+              );
+            }
+            else{
+              return _buildSuccessSection(searchResultListModel);
+            }
           }
           return _buildLoadingSection();
         },
@@ -145,24 +103,24 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
     );
   }
 
-  Widget _buildSuccessSection(LatestKomikModel data) {
+  Widget _buildSuccessSection(SearchResultListModel data) {
     return ListView.builder(
       itemCount: data.data!.length,
       itemBuilder: (BuildContext context, int index) {
-        return _buildItemLatestKomik(data.data![index]);
+        return _buildItemSearchResult(data.data![index]);
       },
     );
   }
 
-  Widget _buildItemLatestKomik(Data latestKomik) {
+  Widget _buildItemSearchResult(Data result) {
     return InkWell(
       onTap: () {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => PageDetailKomik(
-                      idKomik: latestKomik.id!,
-                    )));
+                  idKomik: result.id!,
+                )));
       },
       child: Card(
           color: Color(0xFFF7EFF1),
@@ -172,8 +130,8 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
               children: [
                 Container(
                   width: 200,
-                  child: latestKomik.thumb != null
-                      ? Image.network(latestKomik.thumb!)
+                  child: result.thumb != null
+                      ? Image.network(result.thumb!)
                       : Placeholder(),
                 ),
                 SizedBox(
@@ -183,16 +141,16 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      latestKomik.title!,
+                      result.title!,
                       style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10,
                           vertical: 10), // Tambahkan jarak horizontal di sini
                       child: Text(
-                        latestKomik.summary!,
+                        result.summary!,
                         textAlign: TextAlign.justify,
                       ),
                     ),
@@ -202,16 +160,5 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
             ),
           )),
     );
-  }
-  void _loadPageKomik(int page) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    await ApiDataSource.instance.loadLatestKomik(currentPage.toString());
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 }

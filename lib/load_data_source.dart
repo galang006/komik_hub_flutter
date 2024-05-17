@@ -18,4 +18,8 @@ class ApiDataSource {
   Future<Map<String, dynamic>> loadChapterImage(String idChapter){
     return BaseNetwork.get("/image?id=$idChapter");
   }
+
+  Future<Map<String, dynamic>> loadSearchResult(String text){
+    return BaseNetwork.get("/search?text=$text&nsfw=true&type=all");
+  }
 }

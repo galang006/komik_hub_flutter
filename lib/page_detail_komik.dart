@@ -144,12 +144,12 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
     return ListView.builder(
       itemCount: data.data!.length,
       itemBuilder: (BuildContext context, int index) {
-        return _buildItemChapterKomik(data.data![index]);
+        return _buildItemChapterKomik(index, data.data![index], data.data!);
       },
     );
   }
 
-  Widget _buildItemChapterKomik(ChapterListModel.Data chapter) {
+  Widget _buildItemChapterKomik(int index,ChapterListModel.Data chapter, List<ChapterListModel.Data> chapList) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -157,6 +157,8 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
             MaterialPageRoute(
                 builder: (context) => PageListChapterImages(
                   idChapter: chapter.id!,
+                  chapterList: chapList,
+                  index: index,
                 )));
       },
       child: Card(
