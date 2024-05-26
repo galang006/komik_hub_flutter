@@ -2,6 +2,7 @@ import 'package:pa_prak_mobile/chapter_image_list_model.dart';
 import 'package:pa_prak_mobile/chapter_list_model.dart' as ChapList;
 import 'package:pa_prak_mobile/load_data_source.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageListChapterImages extends StatefulWidget {
   final String idChapter;
@@ -18,15 +19,28 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
   late var totalChapter;
   late var currentChapId;
   bool _isLoading = false;
+  bool _isDarkTheme = false;
+  var appBarColor = Colors.deepPurpleAccent;
+  var titleColor = Colors.black;
 
   @override
   void initState() {
     super.initState();
     // Inisialisasi variabel a ketika widget diinisialisasi
+    _loadTheme();
     chapList = widget.chapterList;
     index = widget.index;
     totalChapter = widget.chapterList.length;
     currentChapId = widget.idChapter;
+  }
+
+  Future<void> _loadTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
+      appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
+      titleColor = _isDarkTheme ? Colors.white : Colors.black;
+    });
   }
 
   void _loadNextChapter() {
@@ -44,12 +58,11 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          chapList[index].title + noChap.toString() ,
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          chapList[index].title + noChap.toString(),
+          style: TextStyle(color: titleColor),
         ),
-        backgroundColor: Color(0xFF994422),
+        backgroundColor: appBarColor,
+        iconTheme: IconThemeData(color: titleColor,),
         centerTitle: true,
       ),
       body: _isLoading ? _buildLoadingSection() : _buildListChapterImages(),
@@ -64,8 +77,8 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
                 });
                 _loadChapter();
               },
-              child: Icon(Icons.arrow_back),
-              backgroundColor: Color(0xFF994422),
+              child: Icon(Icons.arrow_back, color: titleColor,),
+              backgroundColor: appBarColor,
             ),
           SizedBox(
               width:
@@ -78,8 +91,8 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
                 });
                 _loadChapter();
               },
-              child: Icon(Icons.arrow_forward),
-              backgroundColor: Color(0xFF994422),
+              child: Icon(Icons.arrow_forward, color: titleColor,),
+              backgroundColor: appBarColor,
             ),
         ],
       ),

@@ -15,8 +15,10 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
   bool _isLoading = false;
   bool _isDarkTheme = false;
   //
-  var appBarColor = Colors.white;
+  var appBarColor = Colors.deepPurpleAccent;
   var titleColor = Colors.black;
+  var cardColor = Colors.white30;
+
 
   @override
   void initState() {
@@ -28,8 +30,9 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
-      appBarColor = _isDarkTheme ? Colors.black : Colors.white;
-      titleColor = _isDarkTheme ? Colors.white : titleColor = Colors.black;
+      appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
+      titleColor = _isDarkTheme ? Colors.white : Colors.black;
+      cardColor = _isDarkTheme ? Colors.black : Colors.white30;
     });
   }
 
@@ -44,6 +47,7 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
       appBar: AppBar(
         title: Text(widget.text, style: TextStyle(color: titleColor),),
         backgroundColor: appBarColor,
+        iconTheme: IconThemeData(color: titleColor,),
         centerTitle: true,
         actions: [
           Switch(
@@ -51,8 +55,9 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
             onChanged: (value) {
               setState(() {
                 _isDarkTheme = value;
-                appBarColor = _isDarkTheme ? Colors.black : appBarColor = Colors.white;
-                titleColor = _isDarkTheme ? Colors.white : titleColor = Colors.black;
+                appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
+                titleColor = _isDarkTheme ? Colors.white : Colors.black;
+                cardColor = _isDarkTheme ? Colors.black : Colors.white30;
                 _saveTheme(_isDarkTheme);
               });
             },
@@ -123,42 +128,40 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
                 )));
       },
       child: Card(
-          color: Color(0xFFF7EFF1),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: 200,
-                  child: result.thumb != null
-                      ? Image.network(result.thumb!)
-                      : Placeholder(),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+        color: cardColor,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 100,
+                child: result.thumb != null
+                    ? Image.network(result.thumb!)
+                    : Placeholder(),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       result.title!,
-                      style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: titleColor),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10), // Tambahkan jarak horizontal di sini
-                      child: Text(
-                        result.summary!,
-                        textAlign: TextAlign.justify,
-                      ),
+                    SizedBox(height: 10),
+                    Text(
+                      "Chapter: ${result.totalChapter!.toString()}",
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(color: titleColor),
                     ),
                   ],
                 ),
-              ],
-            ),
-          )),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

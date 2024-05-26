@@ -4,6 +4,7 @@ import 'package:pa_prak_mobile/page_detail_komik.dart';
 import 'package:flutter/material.dart';
 import 'package:pa_prak_mobile/page_search_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pa_prak_mobile/page_favorites.dart';
 
 class PageListLatestKomik extends StatefulWidget {
   const PageListLatestKomik({Key? key}) : super(key: key);
@@ -16,8 +17,9 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
   bool _isLoading = false;
   bool _isDarkTheme = false;
   //
-  var appBarColor = Colors.white;
+  var appBarColor = Colors.deepPurpleAccent;
   var titleColor = Colors.black;
+  var cardColor = Colors.white30;
 
   @override
   void initState() {
@@ -29,8 +31,9 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
-      appBarColor = _isDarkTheme ? Colors.black : Colors.white;
-      titleColor = _isDarkTheme ? Colors.white : titleColor = Colors.black;
+      appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
+      titleColor = _isDarkTheme ? Colors.white : Colors.black;
+      cardColor = _isDarkTheme ? Colors.black : Colors.white30;
     });
   }
 
@@ -49,8 +52,8 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
             color: titleColor,
           ),
           decoration: InputDecoration(
-            hintText: 'Search...',
-            hintStyle: TextStyle(color: titleColor)
+              hintText: 'Search...',
+              hintStyle: TextStyle(color: titleColor)
           ),
           onSubmitted: (value) {
             // Navigasi ke halaman hasil pencarian
@@ -63,15 +66,29 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
           },
         ),
         backgroundColor: appBarColor,
+        iconTheme: IconThemeData(color: titleColor,),
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.favorite),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PageFavorites(),
+              ),
+            );
+          },
+          color: titleColor,
+        ),
         actions: [
           Switch(
             value: _isDarkTheme,
             onChanged: (value) {
               setState(() {
                 _isDarkTheme = value;
-                appBarColor = _isDarkTheme ? Colors.black : appBarColor = Colors.white;
-                titleColor = _isDarkTheme ? Colors.white : titleColor = Colors.black;
+                appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
+                titleColor = _isDarkTheme ? Colors.white : Colors.black;
+                cardColor = _isDarkTheme ? Colors.black : Colors.white30;
                 _saveTheme(_isDarkTheme);
               });
             },
@@ -79,7 +96,6 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
           ),
         ],
       ),
-      //body: Text("Test"),
       body: _isLoading ? _buildLoadingSection() : _buildListLatestKomik(),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -93,8 +109,8 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
                 });
                 _loadPageKomik(currentPage);
               },
-              child: Icon(Icons.arrow_back),
-              backgroundColor: Color(0xFF994422),
+              child: Icon(Icons.arrow_back, color: titleColor,),
+              backgroundColor: appBarColor,
             ),
           SizedBox(
               width:
@@ -106,8 +122,8 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
               });
               _loadPageKomik(currentPage);
             },
-            child: Icon(Icons.arrow_forward),
-            backgroundColor: Color(0xFF994422),
+            child: Icon(Icons.arrow_forward, color: titleColor,),
+            backgroundColor: appBarColor,
           ),
         ],
       ),
@@ -158,60 +174,61 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
     return InkWell(
       onTap: () {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => PageDetailKomik(
-                      idKomik: latestKomik.id!,
-                    )));
+          context,
+          MaterialPageRoute(
+            builder: (context) => PageDetailKomik(
+              idKomik: latestKomik.id!,
+            ),
+          ),
+        );
       },
       child: Card(
-          color: Color(0xFFF7EFF1),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: 200,
-                  child: latestKomik.thumb != null
-                      ? Image.network(latestKomik.thumb!)
-                      : Placeholder(),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+        color: cardColor,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 100,
+                child: latestKomik.thumb != null
+                    ? Image.network(latestKomik.thumb!)
+                    : Placeholder(),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       latestKomik.title!,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: titleColor),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10), // Tambahkan jarak horizontal di sini
-                      child: Text(
-                        latestKomik.summary!,
-                        textAlign: TextAlign.justify,
-                      ),
+                    SizedBox(height: 10),
+                    Text(
+                      "Chapter: ${latestKomik.totalChapter!.toString()}",
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(color: titleColor),
                     ),
                   ],
                 ),
-              ],
-            ),
-          )),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
+
   void _loadPageKomik(int page) async {
     setState(() {
-      _isLoading = true;
+      _isLoading = true; // Set loading state to true
     });
 
     await ApiDataSource.instance.loadLatestKomik(currentPage.toString());
 
     setState(() {
-      _isLoading = false;
+      _isLoading = false; // Set loading state to false after data is loaded
     });
   }
 }
