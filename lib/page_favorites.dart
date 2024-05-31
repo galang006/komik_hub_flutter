@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'komik_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pa_prak_mobile/page_detail_komik.dart';
 
 class PageFavorites extends StatefulWidget {
   const PageFavorites({Key? key}) : super(key: key);
@@ -62,20 +63,32 @@ class _PageFavoritesState extends State<PageFavorites> {
               Map<String, dynamic> komikJson = box.get(idKomik);
               Data komik = Data.fromJson(komikJson);
 
-              return Card(
-                color: cardColor,
-                child: ListTile(
-                  leading: komik.thumb != null
-                      ? Image.network(komik.thumb!)
-                      : Placeholder(),
-                  title: Text(komik.title!, style: TextStyle(color: titleColor),),
-                  subtitle: Text("Chapter: ${komik.totalChapter}", style: TextStyle(color: titleColor),),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      _removeFavorite(idKomik);
-                    },
-                    color: titleColor,
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PageDetailKomik(
+                        idKomik: komik.id!,
+                      ),
+                    ),
+                  );
+                },
+                child: Card(
+                  color: cardColor,
+                  child: ListTile(
+                    leading: komik.thumb != null
+                        ? Image.network(komik.thumb!)
+                        : Placeholder(),
+                    title: Text(komik.title!, style: TextStyle(color: titleColor),),
+                    subtitle: Text("Chapter: ${komik.totalChapter}", style: TextStyle(color: titleColor),),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _removeFavorite(idKomik);
+                      },
+                      color: titleColor,
+                    ),
                   ),
                 ),
               );
