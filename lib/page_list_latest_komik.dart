@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pa_prak_mobile/page_search_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pa_prak_mobile/page_favorites.dart';
+import 'package:pa_prak_mobile/ColorTheme.dart';
 
 class PageListLatestKomik extends StatefulWidget {
   const PageListLatestKomik({Key? key}) : super(key: key);
@@ -17,10 +18,11 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
   bool _isLoading = false;
   bool _isDarkTheme = false;
   //
-  var appBarColor = Colors.deepPurpleAccent;
-  var titleColor = Colors.black;
-  var cardColor = Colors.white30;
-
+  var appBarColor = AppTheme.appBarColor;
+  var titleAppBarColor =  AppTheme.titleAppBarColor;
+  var titleColor = AppTheme.titleColor;
+  var cardColor = AppTheme.cardColor;
+  var listColor = AppTheme.listColor;
   @override
   void initState() {
     super.initState();
@@ -31,9 +33,9 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
-      appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
       titleColor = _isDarkTheme ? Colors.white : Colors.black;
-      cardColor = _isDarkTheme ? Colors.black : Colors.white30;
+      cardColor = _isDarkTheme ? Color(0xFF242424) : Colors.white;
+      listColor = _isDarkTheme ? Colors.black : Color(0xFFEDEFF1);
     });
   }
 
@@ -49,11 +51,11 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
         title: TextField(
           style: TextStyle(
             backgroundColor: appBarColor,
-            color: titleColor,
+            color: titleAppBarColor,
           ),
           decoration: InputDecoration(
               hintText: 'Search...',
-              hintStyle: TextStyle(color: titleColor)
+              hintStyle: TextStyle(color: titleAppBarColor)
           ),
           onSubmitted: (value) {
             // Navigasi ke halaman hasil pencarian
@@ -66,7 +68,7 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
           },
         ),
         backgroundColor: appBarColor,
-        iconTheme: IconThemeData(color: titleColor,),
+        iconTheme: IconThemeData(color: titleAppBarColor,),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.favorite),
@@ -78,7 +80,7 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
               ),
             );
           },
-          color: titleColor,
+          color: titleAppBarColor,
         ),
         actions: [
           Switch(
@@ -86,9 +88,9 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
             onChanged: (value) {
               setState(() {
                 _isDarkTheme = value;
-                appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
                 titleColor = _isDarkTheme ? Colors.white : Colors.black;
-                cardColor = _isDarkTheme ? Colors.black : Colors.white30;
+                cardColor = _isDarkTheme ? Color(0xFF242424) : Colors.white;
+                listColor = _isDarkTheme ? Colors.black : Color(0xFFEDEFF1);
                 _saveTheme(_isDarkTheme);
               });
             },
@@ -109,7 +111,7 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
                 });
                 _loadPageKomik(currentPage);
               },
-              child: Icon(Icons.arrow_back, color: titleColor,),
+              child: Icon(Icons.arrow_back, color: titleAppBarColor,),
               backgroundColor: appBarColor,
             ),
           SizedBox(
@@ -122,7 +124,7 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
               });
               _loadPageKomik(currentPage);
             },
-            child: Icon(Icons.arrow_forward, color: titleColor,),
+            child: Icon(Icons.arrow_forward, color: titleAppBarColor,),
             backgroundColor: appBarColor,
           ),
         ],
@@ -162,11 +164,14 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
   }
 
   Widget _buildSuccessSection(LatestKomikModel data) {
-    return ListView.builder(
-      itemCount: data.data!.length,
-      itemBuilder: (BuildContext context, int index) {
-        return _buildItemLatestKomik(data.data![index]);
-      },
+    return Container(
+      color: listColor,
+      child: ListView.builder(
+        itemCount: data.data!.length,
+        itemBuilder: (BuildContext context, int index) {
+          return _buildItemLatestKomik(data.data![index]);
+        },
+      ),
     );
   }
 
