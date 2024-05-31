@@ -6,4 +6,5 @@ class AppTheme{
   static const Color titleColor = Colors.white;
   static const Color cardColor = Colors.white;
   static const Color listColor = Color(0xFFEDEFF1);
+
 }

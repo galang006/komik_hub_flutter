@@ -23,6 +23,7 @@ class _PageListLatestKomikState extends State<PageListLatestKomik> {
   var titleColor = AppTheme.titleColor;
   var cardColor = AppTheme.cardColor;
   var listColor = AppTheme.listColor;
+
   @override
   void initState() {
     super.initState();
