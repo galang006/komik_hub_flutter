@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pa_prak_mobile/page_list_chapter_images.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pa_prak_mobile/ColorTheme.dart';
 
 class PageDetailKomik extends StatefulWidget {
   final String idKomik;
@@ -15,9 +16,11 @@ class PageDetailKomik extends StatefulWidget {
 
 class _PageDetailKomikState extends State<PageDetailKomik> {
   bool _isDarkTheme = false;
-  var appBarColor = Colors.deepPurpleAccent;
-  var titleColor = Colors.black;
-  var cardColor = Colors.white30;
+  var appBarColor = AppTheme.appBarColor;
+  var titleAppBarColor = AppTheme.titleAppBarColor;
+  var titleColor = AppTheme.titleColor;
+  var cardColor = AppTheme.cardColor;
+  var listColor = AppTheme.listColor;
   late Box favoritesBox;
   KomikModel.Data? currentKomik;
 
@@ -32,9 +35,9 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
-      appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
       titleColor = _isDarkTheme ? Colors.white : Colors.black;
-      cardColor = _isDarkTheme ? Colors.black : Colors.white30;
+      cardColor = _isDarkTheme ? Color(0xFF242424) : Colors.white;
+      listColor = _isDarkTheme ? Colors.black : Color(0xFFEDEFF1);
     });
   }
 
@@ -42,15 +45,20 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Detail Komik", style: TextStyle(color: titleColor),),
+        title: Text(
+          "Detail Komik",
+          style: TextStyle(color: titleAppBarColor),
+        ),
         backgroundColor: appBarColor,
-        iconTheme: IconThemeData(color: titleColor,),
+        iconTheme: IconThemeData(
+          color: titleAppBarColor,
+        ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.star),
             onPressed: _saveFavorite,
-            color: titleColor,
+            color: titleAppBarColor,
           ),
         ],
       ),
@@ -73,7 +81,8 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
           return _buildErrorSection();
         }
         if (snapshot.hasData) {
-          KomikModel.KomikModel komikModel = KomikModel.KomikModel.fromJson(snapshot.data);
+          KomikModel.KomikModel komikModel =
+              KomikModel.KomikModel.fromJson(snapshot.data);
           currentKomik = komikModel.data; // Inisialisasi currentKomik
           return _buildSuccessSectionKomik(komikModel);
         }
@@ -90,7 +99,8 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
           return _buildErrorSection();
         }
         if (snapshot.hasData) {
-          ChapterListModel.ChapterListModel chapterListModel = ChapterListModel.ChapterListModel.fromJson(snapshot.data);
+          ChapterListModel.ChapterListModel chapterListModel =
+              ChapterListModel.ChapterListModel.fromJson(snapshot.data);
           return _buildSuccessSectionChapter(chapterListModel);
         }
         return _buildLoadingSection();
@@ -110,95 +120,117 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
 
   Widget _buildSuccessSectionKomik(KomikModel.KomikModel data) {
     KomikModel.Data komik = data.data!;
-    return InkWell(
-      onTap: () {},
-      child: Card(
-        color: cardColor,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                child: komik.thumb != null
-                    ? Image.network(komik.thumb!)
-                    : Placeholder(),
-              ),
-              SizedBox(height: 0),
-              Center(
-                child: Text(
-                  komik.title!,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: titleColor),
+    return Container(
+      color: listColor,
+      child: InkWell(
+        onTap: () {},
+        child: Card(
+          color: cardColor,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  child: komik.thumb != null
+                      ? Image.network(komik.thumb!)
+                      : Placeholder(),
                 ),
-              ),
-              SizedBox(height: 10),
-              Text("Summary", style: TextStyle(fontWeight: FontWeight.bold, color: titleColor)),
-              SizedBox(height: 5),
-              Text(
-                komik.summary!,
-                textAlign: TextAlign.justify,
-                style: TextStyle(color: titleColor),
-              ),
-              SizedBox(height: 5),
-              Text("Author", style: TextStyle(fontWeight: FontWeight.bold, color: titleColor)),
-              SizedBox(height: 5),
-              Text(
-                komik.authors!.join(', '),  // Gabungkan daftar authors menjadi satu string
-                textAlign: TextAlign.justify,
-                style: TextStyle(color: titleColor),
-              ),
-              SizedBox(height: 10),
-              Text("Status", style: TextStyle(fontWeight: FontWeight.bold, color: titleColor)),
-              SizedBox(height: 5),
-              Text(
-                komik.status!,
-                textAlign: TextAlign.justify,
-                style: TextStyle(color: titleColor),
-              ),
-              SizedBox(height: 10),
-              Text("Type", style: TextStyle(fontWeight: FontWeight.bold, color: titleColor)),
-              SizedBox(height: 5),
-              Text(
-                komik.type!,
-                textAlign: TextAlign.justify,
-                style: TextStyle(color: titleColor),
-              ),
-              SizedBox(height: 10),
-              Text("Posted On", style: TextStyle(fontWeight: FontWeight.bold, color: titleColor)),
-              SizedBox(height: 5),
-              Text(
-                komik.createAt!.toString(),
-                textAlign: TextAlign.justify,
-                style: TextStyle(color: titleColor),
-              ),
-              SizedBox(height: 10),
-              Text("Updated On", style: TextStyle(fontWeight: FontWeight.bold, color: titleColor)),
-              SizedBox(height: 5),
-              Text(
-                komik.updateAt!.toString(),
-                textAlign: TextAlign.justify,
-                style: TextStyle(color: titleColor),
-              ),
-              SizedBox(height: 10),
-              Text("Genres", style: TextStyle(fontWeight: FontWeight.bold, color: titleColor)),
-              SizedBox(height: 5),
-              Text(
-                komik.genres!.join(', '),  // Gabungkan daftar genres menjadi satu string
-                textAlign: TextAlign.justify,
-                style: TextStyle(color: titleColor),
-              ),
-            ],
+                SizedBox(height: 0),
+                Center(
+                  child: Text(
+                    komik.title!,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: titleColor),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text("Summary",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: titleColor)),
+                SizedBox(height: 5),
+                Text(
+                  komik.summary!,
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(color: titleColor),
+                ),
+                SizedBox(height: 5),
+                Text("Author",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: titleColor)),
+                SizedBox(height: 5),
+                Text(
+                  komik.authors!.join(
+                      ', '), // Gabungkan daftar authors menjadi satu string
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(color: titleColor),
+                ),
+                SizedBox(height: 10),
+                Text("Status",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: titleColor)),
+                SizedBox(height: 5),
+                Text(
+                  komik.status!,
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(color: titleColor),
+                ),
+                SizedBox(height: 10),
+                Text("Type",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: titleColor)),
+                SizedBox(height: 5),
+                Text(
+                  komik.type!,
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(color: titleColor),
+                ),
+                SizedBox(height: 10),
+                Text("Posted On",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: titleColor)),
+                SizedBox(height: 5),
+                Text(
+                  komik.createAt!.toString(),
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(color: titleColor),
+                ),
+                SizedBox(height: 10),
+                Text("Updated On",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: titleColor)),
+                SizedBox(height: 5),
+                Text(
+                  komik.updateAt!.toString(),
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(color: titleColor),
+                ),
+                SizedBox(height: 10),
+                Text("Genres",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: titleColor)),
+                SizedBox(height: 5),
+                Text(
+                  komik.genres!.join(
+                      ', '), // Gabungkan daftar genres menjadi satu string
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(color: titleColor),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-
   Widget _buildSuccessSectionChapter(ChapterListModel.ChapterListModel data) {
     return Container(
+      color: listColor,
       height: 400, // Menetapkan tinggi untuk daftar agar dapat digulir
       child: ListView.builder(
         itemCount: data.data!.length,
@@ -209,7 +241,8 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
     );
   }
 
-  Widget _buildItemChapterKomik(int index,ChapterListModel.Data chapter, List<ChapterListModel.Data> chapList) {
+  Widget _buildItemChapterKomik(int index, ChapterListModel.Data chapter,
+      List<ChapterListModel.Data> chapList) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -229,7 +262,8 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
           padding: const EdgeInsets.all(10.0),
           child: Text(
             chapter.title!,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: titleColor),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 20, color: titleColor),
             textAlign: TextAlign.center,
           ),
         ),
@@ -243,10 +277,12 @@ class _PageDetailKomikState extends State<PageDetailKomik> {
         favoritesBox.put(currentKomik!.id, currentKomik!.toJson());
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Added to favorites!'),
+          backgroundColor: Colors.green,
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Already in favorites!'),
+          backgroundColor: Colors.blue,
         ));
       }
     }

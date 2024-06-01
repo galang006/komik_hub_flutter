@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'komik_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pa_prak_mobile/page_detail_komik.dart';
+import 'package:pa_prak_mobile/ColorTheme.dart';
 
 class PageFavorites extends StatefulWidget {
   const PageFavorites({Key? key}) : super(key: key);
@@ -14,9 +15,11 @@ class PageFavorites extends StatefulWidget {
 
 class _PageFavoritesState extends State<PageFavorites> {
   bool _isDarkTheme = false;
-  var appBarColor = Colors.deepPurpleAccent;
-  var titleColor = Colors.black;
-  var cardColor = Colors.white30;
+  var appBarColor = AppTheme.appBarColor;
+  var titleAppBarColor = AppTheme.titleAppBarColor;
+  var titleColor = AppTheme.titleColor;
+  var cardColor = AppTheme.cardColor;
+  var listColor = AppTheme.listColor;
   late Box favoritesBox;
 
   @override
@@ -30,9 +33,9 @@ class _PageFavoritesState extends State<PageFavorites> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
-      appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
       titleColor = _isDarkTheme ? Colors.white : Colors.black;
-      cardColor = _isDarkTheme ? Colors.black : Colors.white30;
+      cardColor = _isDarkTheme ? Color(0xFF242424) : Colors.white;
+      listColor = _isDarkTheme ? Colors.black : Color(0xFFEDEFF1);
     });
   }
 
@@ -40,9 +43,14 @@ class _PageFavoritesState extends State<PageFavorites> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Favorite Komiks", style: TextStyle(color: titleColor),),
+        title: Text(
+          "Favorite Komiks",
+          style: TextStyle(color: titleAppBarColor),
+        ),
         backgroundColor: appBarColor,
-        iconTheme: IconThemeData(color: titleColor,),
+        iconTheme: IconThemeData(
+          color: titleAppBarColor,
+        ),
         centerTitle: true,
       ),
       body: ValueListenableBuilder(
@@ -56,43 +64,52 @@ class _PageFavoritesState extends State<PageFavorites> {
 
           List<String> favoriteIds = box.keys.cast<String>().toList();
 
-          return ListView.builder(
-            itemCount: favoriteIds.length,
-            itemBuilder: (context, index) {
-              String idKomik = favoriteIds[index];
-              Map<String, dynamic> komikJson = box.get(idKomik);
-              Data komik = Data.fromJson(komikJson);
+          return Container(
+            color: listColor,
+            child: ListView.builder(
+              itemCount: favoriteIds.length,
+              itemBuilder: (context, index) {
+                String idKomik = favoriteIds[index];
+                Map<String, dynamic> komikJson = Map<String, dynamic>.from(box.get(idKomik));
+                Data komik = Data.fromJson(komikJson);
 
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PageDetailKomik(
-                        idKomik: komik.id!,
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PageDetailKomik(
+                          idKomik: komik.id!,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    color: cardColor,
+                    child: ListTile(
+                      leading: komik.thumb != null
+                          ? Image.network(komik.thumb!)
+                          : Placeholder(),
+                      title: Text(
+                        komik.title!,
+                        style: TextStyle(color: titleColor),
+                      ),
+                      subtitle: Text(
+                        "Chapter: ${komik.totalChapter}",
+                        style: TextStyle(color: titleColor),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          _removeFavorite(idKomik);
+                        },
+                        color: titleColor,
                       ),
                     ),
-                  );
-                },
-                child: Card(
-                  color: cardColor,
-                  child: ListTile(
-                    leading: komik.thumb != null
-                        ? Image.network(komik.thumb!)
-                        : Placeholder(),
-                    title: Text(komik.title!, style: TextStyle(color: titleColor),),
-                    subtitle: Text("Chapter: ${komik.totalChapter}", style: TextStyle(color: titleColor),),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () {
-                        _removeFavorite(idKomik);
-                      },
-                      color: titleColor,
-                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
@@ -103,6 +120,7 @@ class _PageFavoritesState extends State<PageFavorites> {
     favoritesBox.delete(idKomik);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Removed from favorites!'),
+      backgroundColor: Colors.red,
     ));
   }
 }

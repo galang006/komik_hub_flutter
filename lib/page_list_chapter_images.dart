@@ -3,12 +3,18 @@ import 'package:pa_prak_mobile/chapter_list_model.dart' as ChapList;
 import 'package:pa_prak_mobile/load_data_source.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pa_prak_mobile/ColorTheme.dart';
 
 class PageListChapterImages extends StatefulWidget {
   final String idChapter;
   final int index;
   final List<ChapList.Data> chapterList;
-  const PageListChapterImages({Key? key, required this.index, required this.idChapter, required this.chapterList}) : super(key: key);
+  const PageListChapterImages(
+      {Key? key,
+      required this.index,
+      required this.idChapter,
+      required this.chapterList})
+      : super(key: key);
   @override
   State<PageListChapterImages> createState() => _PageListChapterImagesState();
 }
@@ -20,8 +26,11 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
   late var currentChapId;
   bool _isLoading = false;
   bool _isDarkTheme = false;
-  var appBarColor = Colors.deepPurpleAccent;
-  var titleColor = Colors.black;
+  var appBarColor = AppTheme.appBarColor;
+  var titleAppBarColor = AppTheme.titleAppBarColor;
+  var titleColor = AppTheme.titleColor;
+  var cardColor = AppTheme.cardColor;
+  var listColor = AppTheme.listColor;
 
   @override
   void initState() {
@@ -38,17 +47,19 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
-      appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
       titleColor = _isDarkTheme ? Colors.white : Colors.black;
+      cardColor = _isDarkTheme ? Color(0xFF242424) : Colors.white;
+      listColor = _isDarkTheme ? Colors.black : Color(0xFFEDEFF1);
     });
   }
 
   void _loadNextChapter() {
-    index = index+1;
+    index = index + 1;
     currentChapId = chapList[index].id;
   }
+
   void _loadPreviousChapter() {
-    index = index-1;
+    index = index - 1;
     currentChapId = chapList[index].id;
   }
 
@@ -59,10 +70,12 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
       appBar: AppBar(
         title: Text(
           chapList[index].title + noChap.toString(),
-          style: TextStyle(color: titleColor),
+          style: TextStyle(color: titleAppBarColor),
         ),
         backgroundColor: appBarColor,
-        iconTheme: IconThemeData(color: titleColor,),
+        iconTheme: IconThemeData(
+          color: titleAppBarColor,
+        ),
         centerTitle: true,
       ),
       body: _isLoading ? _buildLoadingSection() : _buildListChapterImages(),
@@ -77,13 +90,14 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
                 });
                 _loadChapter();
               },
-              child: Icon(Icons.arrow_back, color: titleColor,),
+              child: Icon(
+                Icons.arrow_back,
+                color: titleAppBarColor,
+              ),
               backgroundColor: appBarColor,
             ),
-          SizedBox(
-              width:
-              20),
-          if (index >= 0 && index < totalChapter-1)
+          SizedBox(width: 20),
+          if (index >= 0 && index < totalChapter - 1)
             FloatingActionButton(
               onPressed: () {
                 setState(() {
@@ -91,7 +105,10 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
                 });
                 _loadChapter();
               },
-              child: Icon(Icons.arrow_forward, color: titleColor,),
+              child: Icon(
+                Icons.arrow_forward,
+                color: titleAppBarColor,
+              ),
               backgroundColor: appBarColor,
             ),
         ],
@@ -110,7 +127,8 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
           }
           if (snapshot.hasData) {
             // Jika data ada dan berhasil maka akan ditampilkan hasil datanya
-            ChapterImageListModel chapterImageListModel = ChapterImageListModel.fromJson(snapshot.data);
+            ChapterImageListModel chapterImageListModel =
+                ChapterImageListModel.fromJson(snapshot.data);
             return _buildSuccessSection(chapterImageListModel);
           }
           return _buildLoadingSection();
@@ -130,11 +148,14 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
   }
 
   Widget _buildSuccessSection(ChapterImageListModel data) {
-    return ListView.builder(
-      itemCount: data.data!.length,
-      itemBuilder: (BuildContext context, int index) {
-        return _buildItemLatestKomik(data.data![index]);
-      },
+    return Container(
+      color: listColor,
+      child: ListView.builder(
+        itemCount: data.data!.length,
+        itemBuilder: (BuildContext context, int index) {
+          return _buildItemLatestKomik(data.data![index]);
+        },
+      ),
     );
   }
 
@@ -149,9 +170,10 @@ class _PageListChapterImagesState extends State<PageListChapterImages> {
               Container(
                 child: image.link != null
                     ? Image.network(
-                  image.link!,
-                  fit: BoxFit.cover, // Menyesuaikan gambar dengan container
-                )
+                        image.link!,
+                        fit: BoxFit
+                            .cover, // Menyesuaikan gambar dengan container
+                      )
                     : Placeholder(),
               ),
             ],

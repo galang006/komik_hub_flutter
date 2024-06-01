@@ -3,6 +3,7 @@ import 'package:pa_prak_mobile/page_detail_komik.dart';
 import 'package:pa_prak_mobile/search_result_model.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pa_prak_mobile/ColorTheme.dart';
 
 class PageListSearchResult extends StatefulWidget {
   final String text;
@@ -15,10 +16,11 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
   bool _isLoading = false;
   bool _isDarkTheme = false;
   //
-  var appBarColor = Colors.deepPurpleAccent;
-  var titleColor = Colors.black;
-  var cardColor = Colors.white30;
-
+  var appBarColor = AppTheme.appBarColor;
+  var titleAppBarColor = AppTheme.titleAppBarColor;
+  var titleColor = AppTheme.titleColor;
+  var cardColor = AppTheme.cardColor;
+  var listColor = AppTheme.listColor;
 
   @override
   void initState() {
@@ -30,9 +32,9 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
-      appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
       titleColor = _isDarkTheme ? Colors.white : Colors.black;
-      cardColor = _isDarkTheme ? Colors.black : Colors.white30;
+      cardColor = _isDarkTheme ? Color(0xFF242424) : Colors.white;
+      listColor = _isDarkTheme ? Colors.black : Color(0xFFEDEFF1);
     });
   }
 
@@ -45,9 +47,14 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.text, style: TextStyle(color: titleColor),),
+        title: Text(
+          widget.text,
+          style: TextStyle(color: titleAppBarColor),
+        ),
         backgroundColor: appBarColor,
-        iconTheme: IconThemeData(color: titleColor,),
+        iconTheme: IconThemeData(
+          color: titleAppBarColor,
+        ),
         centerTitle: true,
         actions: [
           Switch(
@@ -55,9 +62,9 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
             onChanged: (value) {
               setState(() {
                 _isDarkTheme = value;
-                appBarColor = _isDarkTheme ? Colors.deepPurpleAccent : Colors.deepPurpleAccent;
                 titleColor = _isDarkTheme ? Colors.white : Colors.black;
-                cardColor = _isDarkTheme ? Colors.black : Colors.white30;
+                cardColor = _isDarkTheme ? Color(0xFF242424) : Colors.white;
+                listColor = _isDarkTheme ? Colors.black : Color(0xFFEDEFF1);
                 _saveTheme(_isDarkTheme);
               });
             },
@@ -82,13 +89,12 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
           if (snapshot.hasData) {
             // Jika data ada dan berhasil maka akan ditampilkan hasil datanya
             SearchResultListModel searchResultListModel =
-            SearchResultListModel.fromJson(snapshot.data);
-            if (searchResultListModel.data!.length == 0){
+                SearchResultListModel.fromJson(snapshot.data);
+            if (searchResultListModel.data!.length == 0) {
               return Center(
                 child: Text("Hasil tidak ditemukan"),
               );
-            }
-            else{
+            } else {
               return _buildSuccessSection(searchResultListModel);
             }
           }
@@ -109,11 +115,14 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
   }
 
   Widget _buildSuccessSection(SearchResultListModel data) {
-    return ListView.builder(
-      itemCount: data.data!.length,
-      itemBuilder: (BuildContext context, int index) {
-        return _buildItemSearchResult(data.data![index]);
-      },
+    return Container(
+      color: listColor,
+      child: ListView.builder(
+        itemCount: data.data!.length,
+        itemBuilder: (BuildContext context, int index) {
+          return _buildItemSearchResult(data.data![index]);
+        },
+      ),
     );
   }
 
@@ -124,8 +133,8 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
             context,
             MaterialPageRoute(
                 builder: (context) => PageDetailKomik(
-                  idKomik: result.id!,
-                )));
+                      idKomik: result.id!,
+                    )));
       },
       child: Card(
         color: cardColor,
@@ -147,7 +156,10 @@ class _PageListSearchResultState extends State<PageListSearchResult> {
                   children: [
                     Text(
                       result.title!,
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: titleColor),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: titleColor),
                     ),
                     SizedBox(height: 10),
                     Text(
