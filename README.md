@@ -1,6 +1,6 @@
 # KomikHub
 
-A new Flutter project.
+Aplikasi android untuk membaca komik.
 
 ## Getting Started
 
