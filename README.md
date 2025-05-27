@@ -1,4 +1,4 @@
-# pa_prak_mobile
+# KomikHub
 
 A new Flutter project.
 
